@@ -60,9 +60,17 @@ flyButton.Text = "Ativar Voo"
 flyButton.BackgroundColor3 = Color3.fromRGB(70, 130, 180)
 flyButton.TextColor3 = Color3.new(1,1,1)
 
+--== Botão de andar mais rápido ==--
+local speedButton = Instance.new("TextButton", screenGui)
+speedButton.Position = UDim2.new(0.05, 0, 0.2, 0)
+speedButton.Size = UDim2.new(0, 120, 0, 40)
+speedButton.Text = "Aumentar Velocidade"
+speedButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+speedButton.TextColor3 = Color3.new(1,1,1)
+
 --== Slider de velocidade de voo ==--
 local sliderFrame = Instance.new("Frame", screenGui)
-sliderFrame.Position = UDim2.new(0.05, 0, 0.2, 0)
+sliderFrame.Position = UDim2.new(0.05, 0, 0.3, 0)
 sliderFrame.Size = UDim2.new(0, 200, 0, 40)
 sliderFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 sliderFrame.BorderSizePixel = 0
@@ -143,41 +151,25 @@ flyButton.MouseButton1Click:Connect(function()
 	end
 end)
 
---== Slider Lógica de velocidade de caminhada ==--
+--== Lógica de aumentar velocidade de caminhada ==--
+local walkingSpeed = 16
+speedButton.MouseButton1Click:Connect(function()
+	-- Aumenta a velocidade de caminhada do personagem
+	walkingSpeed = walkingSpeed + 5
+	if walkingSpeed > 50 then
+		walkingSpeed = 50
+	end
+	humanoid.WalkSpeed = walkingSpeed
+	speedLabel.Text = "Vel: " .. tostring(walkingSpeed)
+end)
+
+--== Slider Lógica de velocidade de voo ==--
 local dragging = false
-local minWalkSpeed, maxWalkSpeed = 16, 50  -- Velocidade de caminhada de 16 a 50
+local minSpeed, maxSpeed = 50, 150  -- Velocidade de voo de 50 a 150
 
 local function updateWalkSlider(inputX)
 	local relativeX = math.clamp((inputX - sliderBar.AbsolutePosition.X) / sliderBar.AbsoluteSize.X, 0, 1)
-	local newSpeed = math.floor(minWalkSpeed + (maxWalkSpeed - minWalkSpeed) * relativeX)
-	humanoid.WalkSpeed = newSpeed  -- Aplica a velocidade de caminhada ao Humanoid
+	local newSpeed = math.floor(minSpeed + (maxSpeed - minSpeed) * relativeX)
 	speed = newSpeed
 	fill.Size = UDim2.new(relativeX, 0, 1, 0)
-	knob.Position = UDim2.new(relativeX, -5, 0.5, -10)
-	speedLabel.Text = "Vel: " .. tostring(speed)
-end
-
-knob.InputBegan:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 then
-		dragging = true
-	end
-end)
-
-uis.InputEnded:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 then
-		dragging = false
-	end
-end)
-
-uis.InputChanged:Connect(function(input)
-	if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-		updateWalkSlider(input.Position.X)
-	end
-end)
-
-sliderBar.InputBegan:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 then
-		updateWalkSlider(input.Position.X)
-		dragging = true
-	end
-end)
+	knob.Position = UDim2.new(relativeX, -5, 0.5, -10
