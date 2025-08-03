@@ -60,7 +60,7 @@ flyButton.Text = "Ativar Voo"
 flyButton.BackgroundColor3 = Color3.fromRGB(70, 130, 180)
 flyButton.TextColor3 = Color3.new(1,1,1)
 
---== Slider de velocidade ==--
+--== Slider de velocidade de voo ==--
 local sliderFrame = Instance.new("Frame", screenGui)
 sliderFrame.Position = UDim2.new(0.05, 0, 0.2, 0)
 sliderFrame.Size = UDim2.new(0, 200, 0, 40)
@@ -143,13 +143,14 @@ flyButton.MouseButton1Click:Connect(function()
 	end
 end)
 
---== Slider Lógica ==--
+--== Slider Lógica de velocidade de caminhada ==--
 local dragging = false
-local minSpeed, maxSpeed = 50, 150
+local minWalkSpeed, maxWalkSpeed = 16, 50  -- Velocidade de caminhada de 16 a 50
 
-local function updateSlider(inputX)
+local function updateWalkSlider(inputX)
 	local relativeX = math.clamp((inputX - sliderBar.AbsolutePosition.X) / sliderBar.AbsoluteSize.X, 0, 1)
-	local newSpeed = math.floor(minSpeed + (maxSpeed - minSpeed) * relativeX)
+	local newSpeed = math.floor(minWalkSpeed + (maxWalkSpeed - minWalkSpeed) * relativeX)
+	humanoid.WalkSpeed = newSpeed  -- Aplica a velocidade de caminhada ao Humanoid
 	speed = newSpeed
 	fill.Size = UDim2.new(relativeX, 0, 1, 0)
 	knob.Position = UDim2.new(relativeX, -5, 0.5, -10)
@@ -170,13 +171,13 @@ end)
 
 uis.InputChanged:Connect(function(input)
 	if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-		updateSlider(input.Position.X)
+		updateWalkSlider(input.Position.X)
 	end
 end)
 
 sliderBar.InputBegan:Connect(function(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton1 then
-		updateSlider(input.Position.X)
+		updateWalkSlider(input.Position.X)
 		dragging = true
 	end
 end)
