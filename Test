@@ -1,0 +1,284 @@
+-- TuxKeySystem Injected - GUI Moderna
+local player = game.Players.LocalPlayer
+local TweenService = game:GetService("TweenService")
+
+-- Criar ScreenGui principal
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "TuxKeySystem"
+ScreenGui.Parent = player:WaitForChild("PlayerGui")
+ScreenGui.ResetOnSpawn = false
+
+-- Frame principal com sombra
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Parent = ScreenGui
+MainFrame.Size = UDim2.new(0, 400, 0, 250)
+MainFrame.Position = UDim2.new(0.5, -200, 0.5, -125)
+MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+MainFrame.BorderSizePixel = 0
+MainFrame.ClipsDescendants = true
+
+-- Adicionar corner radius
+local MainCorner = Instance.new("UICorner")
+MainCorner.CornerRadius = UDim.new(0, 12)
+MainCorner.Parent = MainFrame
+
+-- Sombra do frame principal
+local Shadow = Instance.new("Frame")
+Shadow.Name = "Shadow"
+Shadow.Parent = ScreenGui
+Shadow.Size = UDim2.new(0, 410, 0, 260)
+Shadow.Position = UDim2.new(0.5, -205, 0.5, -130)
+Shadow.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+Shadow.BackgroundTransparency = 0.5
+Shadow.BorderSizePixel = 0
+Shadow.ZIndex = MainFrame.ZIndex - 1
+
+local ShadowCorner = Instance.new("UICorner")
+ShadowCorner.CornerRadius = UDim.new(0, 12)
+ShadowCorner.Parent = Shadow
+
+-- Header com gradiente
+local Header = Instance.new("Frame")
+Header.Name = "Header"
+Header.Parent = MainFrame
+Header.Size = UDim2.new(1, 0, 0, 50)
+Header.Position = UDim2.new(0, 0, 0, 0)
+Header.BackgroundColor3 = Color3.fromRGB(30, 144, 255)
+Header.BorderSizePixel = 0
+
+local HeaderCorner = Instance.new("UICorner")
+HeaderCorner.CornerRadius = UDim.new(0, 12)
+HeaderCorner.Parent = Header
+
+-- Gradiente do header
+local HeaderGradient = Instance.new("UIGradient")
+HeaderGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(30, 144, 255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(138, 43, 226))
+}
+HeaderGradient.Rotation = 45
+HeaderGradient.Parent = Header
+
+-- Título
+local Title = Instance.new("TextLabel")
+Title.Name = "Title"
+Title.Parent = Header
+Title.Size = UDim2.new(1, -20, 1, 0)
+Title.Position = UDim2.new(0, 10, 0, 0)
+Title.BackgroundTransparency = 1
+Title.Text = "🔐 TuxKeySystem"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.TextScaled = true
+Title.Font = Enum.Font.GothamBold
+
+-- Botão de fechar
+local CloseButton = Instance.new("TextButton")
+CloseButton.Name = "CloseButton"
+CloseButton.Parent = Header
+CloseButton.Size = UDim2.new(0, 30, 0, 30)
+CloseButton.Position = UDim2.new(1, -40, 0, 10)
+CloseButton.BackgroundColor3 = Color3.fromRGB(255, 85, 85)
+CloseButton.BorderSizePixel = 0
+CloseButton.Text = "✕"
+CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseButton.TextScaled = true
+CloseButton.Font = Enum.Font.GothamBold
+
+local CloseCorner = Instance.new("UICorner")
+CloseCorner.CornerRadius = UDim.new(0, 6)
+CloseCorner.Parent = CloseButton
+
+-- Container principal
+local Container = Instance.new("Frame")
+Container.Name = "Container"
+Container.Parent = MainFrame
+Container.Size = UDim2.new(1, -40, 1, -90)
+Container.Position = UDim2.new(0, 20, 0, 70)
+Container.BackgroundTransparency = 1
+
+-- TextBox estilizada
+local KeyInput = Instance.new("TextBox")
+KeyInput.Name = "KeyInput"
+KeyInput.Parent = Container
+KeyInput.Size = UDim2.new(1, 0, 0, 40)
+KeyInput.Position = UDim2.new(0, 0, 0, 0)
+KeyInput.BackgroundColor3 = Color3.fromRGB(35, 35, 40)
+KeyInput.BorderSizePixel = 0
+KeyInput.PlaceholderText = "Digite sua key aqui..."
+KeyInput.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
+KeyInput.Text = ""
+KeyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+KeyInput.TextScaled = true
+KeyInput.Font = Enum.Font.Gotham
+KeyInput.ClearTextOnFocus = false
+
+local InputCorner = Instance.new("UICorner")
+InputCorner.CornerRadius = UDim.new(0, 8)
+InputCorner.Parent = KeyInput
+
+-- Stroke para o input
+local InputStroke = Instance.new("UIStroke")
+InputStroke.Color = Color3.fromRGB(60, 60, 70)
+InputStroke.Thickness = 1
+InputStroke.Parent = KeyInput
+
+-- Botão Verificar
+local VerifyButton = Instance.new("TextButton")
+VerifyButton.Name = "VerifyButton"
+VerifyButton.Parent = Container
+VerifyButton.Size = UDim2.new(0.48, 0, 0, 40)
+VerifyButton.Position = UDim2.new(0, 0, 0, 60)
+VerifyButton.BackgroundColor3 = Color3.fromRGB(34, 197, 94)
+VerifyButton.BorderSizePixel = 0
+VerifyButton.Text = "🔓 Verificar"
+VerifyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+VerifyButton.TextScaled = true
+VerifyButton.Font = Enum.Font.GothamBold
+
+local VerifyCorner = Instance.new("UICorner")
+VerifyCorner.CornerRadius = UDim.new(0, 8)
+VerifyCorner.Parent = VerifyButton
+
+-- Botão Copiar Key
+local CopyButton = Instance.new("TextButton")
+CopyButton.Name = "CopyButton"
+CopyButton.Parent = Container
+CopyButton.Size = UDim2.new(0.48, 0, 0, 40)
+CopyButton.Position = UDim2.new(0.52, 0, 0, 60)
+CopyButton.BackgroundColor3 = Color3.fromRGB(59, 130, 246)
+CopyButton.BorderSizePixel = 0
+CopyButton.Text = "📋 Copiar Key"
+CopyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CopyButton.TextScaled = true
+CopyButton.Font = Enum.Font.GothamBold
+
+local CopyCorner = Instance.new("UICorner")
+CopyCorner.CornerRadius = UDim.new(0, 8)
+CopyCorner.Parent = CopyButton
+
+-- Status Label
+local StatusLabel = Instance.new("TextLabel")
+StatusLabel.Name = "StatusLabel"
+StatusLabel.Parent = Container
+StatusLabel.Size = UDim2.new(1, 0, 0, 30)
+StatusLabel.Position = UDim2.new(0, 0, 0, 120)
+StatusLabel.BackgroundTransparency = 1
+StatusLabel.Text = "💡 Cole a key acima e clique em verificar"
+StatusLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
+StatusLabel.TextScaled = true
+StatusLabel.Font = Enum.Font.Gotham
+
+-- Função de animação
+local function animateButton(button)
+    local originalSize = button.Size
+    local tweenInfo = TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+    
+    local shrinkTween = TweenService:Create(button, tweenInfo, {Size = UDim2.new(originalSize.X.Scale * 0.95, originalSize.X.Offset * 0.95, originalSize.Y.Scale * 0.95, originalSize.Y.Offset * 0.95)})
+    local expandTween = TweenService:Create(button, tweenInfo, {Size = originalSize})
+    
+    shrinkTween:Play()
+    shrinkTween.Completed:Connect(function()
+        expandTween:Play()
+    end)
+end
+
+-- Animação de entrada
+MainFrame.Position = UDim2.new(0.5, -200, 1.5, 0)
+Shadow.Position = UDim2.new(0.5, -205, 1.5, 0)
+
+local entranceTween = TweenService:Create(MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Position = UDim2.new(0.5, -200, 0.5, -125)})
+local shadowTween = TweenService:Create(Shadow, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Position = UDim2.new(0.5, -205, 0.5, -130)})
+
+entranceTween:Play()
+shadowTween:Play()
+
+-- Eventos dos botões
+CloseButton.MouseButton1Click:Connect(function()
+    animateButton(CloseButton)
+    wait(0.1)
+    ScreenGui:Destroy()
+end)
+
+CopyButton.MouseButton1Click:Connect(function()
+    animateButton(CopyButton)
+    setclipboard("https://tuxmain.rf.gd/tuxcurtor/view.php?id=irYUaMLl")
+    StatusLabel.Text = "✅ Link copiado para a área de transferência!"
+    StatusLabel.TextColor3 = Color3.fromRGB(34, 197, 94)
+    
+    wait(3)
+    StatusLabel.Text = "💡 Cole a key acima e clique em verificar"
+    StatusLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
+end)
+
+VerifyButton.MouseButton1Click:Connect(function()
+    animateButton(VerifyButton)
+    
+    if KeyInput.Text == "123" then
+        StatusLabel.Text = "✅ Key válida! Carregando script..."
+        StatusLabel.TextColor3 = Color3.fromRGB(34, 197, 94)
+        
+        -- Animação de saída
+        local exitTween = TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In), {Position = UDim2.new(0.5, -200, -1, 0)})
+        local shadowExitTween = TweenService:Create(Shadow, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In), {Position = UDim2.new(0.5, -205, -1, 0)})
+        
+        exitTween:Play()
+        shadowExitTween:Play()
+        
+        exitTween.Completed:Connect(function()
+            ScreenGui:Destroy()
+        end)
+    else
+        StatusLabel.Text = "❌ Key incorreta! Tente novamente"
+        StatusLabel.TextColor3 = Color3.fromRGB(239, 68, 68)
+        KeyInput.Text = ""
+        
+        -- Shake animation para erro
+        local originalPos = MainFrame.Position
+        local shakeInfo = TweenInfo.new(0.05, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
+        
+        local shake1 = TweenService:Create(MainFrame, shakeInfo, {Position = UDim2.new(originalPos.X.Scale, originalPos.X.Offset + 10, originalPos.Y.Scale, originalPos.Y.Offset)})
+        local shake2 = TweenService:Create(MainFrame, shakeInfo, {Position = UDim2.new(originalPos.X.Scale, originalPos.X.Offset - 10, originalPos.Y.Scale, originalPos.Y.Offset)})
+        local shake3 = TweenService:Create(MainFrame, shakeInfo, {Position = originalPos})
+        
+        shake1:Play()
+        shake1.Completed:Connect(function()
+            shake2:Play()
+            shake2.Completed:Connect(function()
+                shake3:Play()
+            end)
+        end)
+        
+        wait(3)
+        StatusLabel.Text = "💡 Cole a key acima e clique em verificar"
+        StatusLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
+    end
+end)
+
+-- Efeito hover nos botões
+local function addHoverEffect(button, hoverColor, originalColor)
+    button.MouseEnter:Connect(function()
+        local hoverTween = TweenService:Create(button, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {BackgroundColor3 = hoverColor})
+        hoverTween:Play()
+    end)
+    
+    button.MouseLeave:Connect(function()
+        local leaveTween = TweenService:Create(button, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {BackgroundColor3 = originalColor})
+        leaveTween:Play()
+    end)
+end
+
+addHoverEffect(VerifyButton, Color3.fromRGB(22, 163, 74), Color3.fromRGB(34, 197, 94))
+addHoverEffect(CopyButton, Color3.fromRGB(37, 99, 235), Color3.fromRGB(59, 130, 246))
+addHoverEffect(CloseButton, Color3.fromRGB(220, 38, 38), Color3.fromRGB(255, 85, 85))
+
+-- Efeito focus no input
+KeyInput.Focused:Connect(function()
+    local focusTween = TweenService:Create(InputStroke, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {Color = Color3.fromRGB(59, 130, 246)})
+    focusTween:Play()
+end)
+
+KeyInput.FocusLost:Connect(function()
+    local unfocusTween = TweenService:Create(InputStroke, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {Color = Color3.fromRGB(60, 60, 70)})
+    unfocusTween:Play()
+end)
