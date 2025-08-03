@@ -14,8 +14,8 @@ screenGui.Name = "FlySpeedMenu"
 --== Intro (animação inicial) ==--
 local introFrame = Instance.new("Frame")
 introFrame.Size = UDim2.new(0, 400, 0, 100)
-introFrame.Position = UDim2.new(0.5, -200, 0, -120)
-introFrame.BackgroundColor3 = Color3.fromRGB(128, 0, 255)
+introFrame.Position = UDim2.new(0.5, -200, 0, -120) -- começa fora da tela
+introFrame.BackgroundColor3 = Color3.fromRGB(128, 0, 255) -- roxo
 introFrame.BackgroundTransparency = 0
 introFrame.AnchorPoint = Vector2.new(0.5, 0)
 introFrame.BorderSizePixel = 0
@@ -40,19 +40,22 @@ local tweenInfo = TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.O
 local goal = {Position = UDim2.new(0.5, -200, 0.3, 0)}
 TweenService:Create(introFrame, tweenInfo, goal):Play()
 
+-- Aguarda a intro e remove
 task.delay(3, function()
 	local fadeOut = TweenService:Create(introFrame, TweenInfo.new(1), {BackgroundTransparency = 1})
 	local textFade = TweenService:Create(textLabel, TweenInfo.new(1), {
 		TextTransparency = 1,
 		TextStrokeTransparency = 1
 	})
+
 	fadeOut:Play()
 	textFade:Play()
+
 	fadeOut.Completed:Wait()
 	introFrame:Destroy()
 end)
 
---== Botão de voo ==--
+--== Botões principais ==--
 local flyButton = Instance.new("TextButton", screenGui)
 flyButton.Position = UDim2.new(0.05, 0, 0.1, 0)
 flyButton.Size = UDim2.new(0, 120, 0, 40)
@@ -60,51 +63,16 @@ flyButton.Text = "Ativar Voo"
 flyButton.BackgroundColor3 = Color3.fromRGB(70, 130, 180)
 flyButton.TextColor3 = Color3.new(1,1,1)
 
---== Botão de andar mais rápido ==--
 local speedButton = Instance.new("TextButton", screenGui)
-speedButton.Position = UDim2.new(0.05, 0, 0.2, 0)
+speedButton.Position = UDim2.new(0.05, 0, 0.18, 0)
 speedButton.Size = UDim2.new(0, 120, 0, 40)
-speedButton.Text = "Aumentar Velocidade"
-speedButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+speedButton.Text = "Vel: 16"
+speedButton.BackgroundColor3 = Color3.fromRGB(60, 179, 113)
 speedButton.TextColor3 = Color3.new(1,1,1)
-
---== Slider de velocidade de voo ==--
-local sliderFrame = Instance.new("Frame", screenGui)
-sliderFrame.Position = UDim2.new(0.05, 0, 0.3, 0)
-sliderFrame.Size = UDim2.new(0, 200, 0, 40)
-sliderFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-sliderFrame.BorderSizePixel = 0
-
-local sliderBar = Instance.new("Frame", sliderFrame)
-sliderBar.Position = UDim2.new(0, 10, 0.5, -5)
-sliderBar.Size = UDim2.new(1, -20, 0, 10)
-sliderBar.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-sliderBar.BorderSizePixel = 0
-
-local fill = Instance.new("Frame", sliderBar)
-fill.Size = UDim2.new(0, 0, 1, 0)
-fill.BackgroundColor3 = Color3.fromRGB(60, 179, 113)
-fill.BorderSizePixel = 0
-
-local knob = Instance.new("Frame", sliderBar)
-knob.Size = UDim2.new(0, 10, 0, 20)
-knob.Position = UDim2.new(0, 0, 0.5, -10)
-knob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-knob.BorderSizePixel = 0
-Instance.new("UICorner", knob).CornerRadius = UDim.new(1, 0)
-
-local speedLabel = Instance.new("TextLabel", sliderFrame)
-speedLabel.Position = UDim2.new(1, 5, 0, 0)
-speedLabel.Size = UDim2.new(0, 60, 1, 0)
-speedLabel.Text = "Vel: 50"
-speedLabel.TextColor3 = Color3.new(1,1,1)
-speedLabel.BackgroundTransparency = 1
-speedLabel.TextScaled = true
-speedLabel.Font = Enum.Font.Gotham
 
 --== Voo ==--
 local flying = false
-local speed = 50
+local speed = 16
 local flyVelocity = Vector3.new()
 local bodyVelocity, bodyGyro
 
@@ -151,25 +119,8 @@ flyButton.MouseButton1Click:Connect(function()
 	end
 end)
 
---== Lógica de aumentar velocidade de caminhada ==--
-local walkingSpeed = 16
 speedButton.MouseButton1Click:Connect(function()
-	-- Aumenta a velocidade de caminhada do personagem
-	walkingSpeed = walkingSpeed + 5
-	if walkingSpeed > 50 then
-		walkingSpeed = 50
-	end
-	humanoid.WalkSpeed = walkingSpeed
-	speedLabel.Text = "Vel: " .. tostring(walkingSpeed)
+	speed = speed + 10
+	if speed > 100 then speed = 16 end
+	speedButton.Text = "Vel: " .. speed
 end)
-
---== Slider Lógica de velocidade de voo ==--
-local dragging = false
-local minSpeed, maxSpeed = 50, 150  -- Velocidade de voo de 50 a 150
-
-local function updateWalkSlider(inputX)
-	local relativeX = math.clamp((inputX - sliderBar.AbsolutePosition.X) / sliderBar.AbsoluteSize.X, 0, 1)
-	local newSpeed = math.floor(minSpeed + (maxSpeed - minSpeed) * relativeX)
-	speed = newSpeed
-	fill.Size = UDim2.new(relativeX, 0, 1, 0)
-	knob.Position = UDim2.new(relativeX, -5, 0.5, -10
