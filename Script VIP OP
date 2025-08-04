@@ -1,0 +1,195 @@
+-- Serviços
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+local uis = game:GetService("UserInputService")
+local runService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+
+-- GUI
+local screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+screenGui.Name = "JhowllFlyWalkMenu"
+screenGui.ResetOnSpawn = false
+
+--== Tela de introdução ==--
+local introFrame = Instance.new("Frame", screenGui)
+introFrame.Size = UDim2.new(0, 400, 0, 100)
+introFrame.Position = UDim2.new(0.5, -200, 0, -120)
+introFrame.BackgroundColor3 = Color3.fromRGB(128, 0, 255)
+introFrame.AnchorPoint = Vector2.new(0.5, 0)
+introFrame.BorderSizePixel = 0
+local introCorner = Instance.new("UICorner", introFrame)
+introCorner.CornerRadius = UDim.new(0, 20)
+
+local introText = Instance.new("TextLabel", introFrame)
+introText.Size = UDim2.new(1, 0, 1, 0)
+introText.Text = "Jhowll Scripts"
+introText.Font = Enum.Font.GothamBold
+introText.TextSize = 36
+introText.TextColor3 = Color3.new(1, 1, 1)
+introText.BackgroundTransparency = 1
+introText.TextStrokeTransparency = 0.5
+
+local introTweenIn = TweenService:Create(introFrame, TweenInfo.new(1), {Position = UDim2.new(0.5, -200, 0.3, 0)})
+introTweenIn:Play()
+
+task.delay(3, function()
+	local fadeFrame = TweenService:Create(introFrame, TweenInfo.new(1), {BackgroundTransparency = 1})
+	local fadeText = TweenService:Create(introText, TweenInfo.new(1), {TextTransparency = 1, TextStrokeTransparency = 1})
+	fadeFrame:Play()
+	fadeText:Play()
+	fadeFrame.Completed:Wait()
+	introFrame:Destroy()
+end)
+
+--== Menu principal ==--
+local mainFrame = Instance.new("Frame", screenGui)
+mainFrame.Position = UDim2.new(0.05, 0, 0.1, 0)
+mainFrame.Size = UDim2.new(0, 280, 0, 240)
+mainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+mainFrame.BorderSizePixel = 0
+Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 12)
+
+local uiList = Instance.new("UIListLayout", mainFrame)
+uiList.Padding = UDim.new(0, 12)
+uiList.FillDirection = Enum.FillDirection.Vertical
+uiList.HorizontalAlignment = Enum.HorizontalAlignment.Center
+uiList.SortOrder = Enum.SortOrder.LayoutOrder
+
+--== Botão de voo ==--
+local flyButton = Instance.new("TextButton", mainFrame)
+flyButton.Size = UDim2.new(0, 240, 0, 40)
+flyButton.Text = "Ativar Voo"
+flyButton.BackgroundColor3 = Color3.fromRGB(70, 130, 180)
+flyButton.TextColor3 = Color3.new(1,1,1)
+Instance.new("UICorner", flyButton).CornerRadius = UDim.new(0, 8)
+
+--== Função: Criar slider ==
+local function criarSlider(tituloTexto, valorInicial, valorMin, valorMax)
+	local frame = Instance.new("Frame")
+	frame.Size = UDim2.new(0, 240, 0, 60)
+	frame.BackgroundTransparency = 1
+
+	local titulo = Instance.new("TextLabel", frame)
+	titulo.Text = tituloTexto
+	titulo.Size = UDim2.new(1, 0, 0, 20)
+	titulo.BackgroundTransparency = 1
+	titulo.TextColor3 = Color3.new(1, 1, 1)
+	titulo.Font = Enum.Font.Gotham
+	titulo.TextScaled = true
+
+	local sliderBar = Instance.new("Frame", frame)
+	sliderBar.Position = UDim2.new(0, 10, 0, 30)
+	sliderBar.Size = UDim2.new(1, -20, 0, 10)
+	sliderBar.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+	sliderBar.BorderSizePixel = 0
+
+	local fill = Instance.new("Frame", sliderBar)
+	fill.Size = UDim2.new(0, 0, 1, 0)
+	fill.BackgroundColor3 = Color3.fromRGB(60, 179, 113)
+	fill.BorderSizePixel = 0
+
+	local knob = Instance.new("Frame", sliderBar)
+	knob.Size = UDim2.new(0, 10, 0, 20)
+	knob.Position = UDim2.new(0, 0, 0.5, -10)
+	knob.BackgroundColor3 = Color3.new(1, 1, 1)
+	Instance.new("UICorner", knob).CornerRadius = UDim.new(1, 0)
+
+	local valor = valorInicial
+	local dragging = false
+
+	local function update(inputX)
+		local rel = math.clamp((inputX - sliderBar.AbsolutePosition.X) / sliderBar.AbsoluteSize.X, 0, 1)
+		valor = math.floor(valorMin + (valorMax - valorMin) * rel)
+		fill.Size = UDim2.new(rel, 0, 1, 0)
+		knob.Position = UDim2.new(rel, -5, 0.5, -10)
+	end
+
+	knob.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = true end
+	end)
+
+	uis.InputChanged:Connect(function(input)
+		if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+			update(input.Position.X)
+		end
+	end)
+
+	uis.InputEnded:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
+	end)
+
+	sliderBar.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			update(input.Position.X)
+			dragging = true
+		end
+	end)
+
+	task.wait(0.1)
+	update(sliderBar.AbsolutePosition.X)
+
+	return frame, function() return valor end
+end
+
+--== Sliders: Velocidade de voo e caminhada ==--
+local sliderVoo, getFlySpeed = criarSlider("Velocidade do Voo", 50, 50, 200)
+sliderVoo.Parent = mainFrame
+
+local sliderWalk, getWalkSpeed = criarSlider("Velocidade ao Andar", humanoid.WalkSpeed, 16, 100)
+sliderWalk.Parent = mainFrame
+
+--== Funções de Voo ==--
+local flying = false
+local bodyVelocity, bodyGyro
+
+local function startFlying()
+	local root = character:WaitForChild("HumanoidRootPart")
+
+	bodyVelocity = Instance.new("BodyVelocity", root)
+	bodyVelocity.MaxForce = Vector3.new(1e5, 1e5, 1e5)
+	bodyVelocity.Velocity = Vector3.zero
+
+	bodyGyro = Instance.new("BodyGyro", root)
+	bodyGyro.MaxTorque = Vector3.new(1e5, 1e5, 1e5)
+	bodyGyro.CFrame = root.CFrame
+
+	runService:BindToRenderStep("FlyControl", Enum.RenderPriority.Input.Value, function()
+		local move = Vector3.zero
+		if uis:IsKeyDown(Enum.KeyCode.W) then move += workspace.CurrentCamera.CFrame.LookVector end
+		if uis:IsKeyDown(Enum.KeyCode.S) then move -= workspace.CurrentCamera.CFrame.LookVector end
+		if uis:IsKeyDown(Enum.KeyCode.A) then move -= workspace.CurrentCamera.CFrame.RightVector end
+		if uis:IsKeyDown(Enum.KeyCode.D) then move += workspace.CurrentCamera.CFrame.RightVector end
+		if uis:IsKeyDown(Enum.KeyCode.Space) then move += Vector3.new(0,1,0) end
+		if uis:IsKeyDown(Enum.KeyCode.LeftControl) then move -= Vector3.new(0,1,0) end
+
+		local flySpeed = getFlySpeed()
+		bodyVelocity.Velocity = move.Magnitude > 0 and move.Unit * flySpeed or Vector3.zero
+		bodyGyro.CFrame = workspace.CurrentCamera.CFrame
+	end)
+end
+
+local function stopFlying()
+	runService:UnbindFromRenderStep("FlyControl")
+	if bodyVelocity then bodyVelocity:Destroy() end
+	if bodyGyro then bodyGyro:Destroy() end
+end
+
+--== Botão de voo: ação ==--
+flyButton.MouseButton1Click:Connect(function()
+	flying = not flying
+	if flying then
+		startFlying()
+		flyButton.Text = "Desativar Voo"
+	else
+		stopFlying()
+		flyButton.Text = "Ativar Voo"
+	end
+end)
+
+--== Atualizador de WalkSpeed constante ==--
+runService.RenderStepped:Connect(function()
+	if humanoid then
+		humanoid.WalkSpeed = getWalkSpeed()
+	end
+end)
