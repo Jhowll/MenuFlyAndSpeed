@@ -1,0 +1,142 @@
+-- GUI setup
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "FlyWalkGui"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 260, 0, 220)
+mainFrame.Position = UDim2.new(0.5, -130, 0.5, -110)
+mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+mainFrame.BorderSizePixel = 0
+mainFrame.Parent = ScreenGui
+Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 8)
+
+local title = Instance.new("TextLabel", mainFrame)
+title.Size = UDim2.new(1, 0, 0, 40)
+title.Text = "Jhowll Scripts - Fly & WalkSpeed"
+title.TextColor3 = Color3.new(1, 1, 1)
+title.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+title.BorderSizePixel = 0
+Instance.new("UICorner", title).CornerRadius = UDim.new(0, 8)
+
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+local flying = false
+local flySpeed = 100
+local walkSpeed = 16
+
+-- WalkSpeed Slider
+local walkSlider = Instance.new("TextButton", mainFrame)
+walkSlider.Position = UDim2.new(0, 10, 0, 60)
+walkSlider.Size = UDim2.new(0, 240, 0, 40)
+walkSlider.Text = "Velocidade de Andar: 16"
+walkSlider.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+walkSlider.TextColor3 = Color3.new(1, 1, 1)
+Instance.new("UICorner", walkSlider).CornerRadius = UDim.new(0, 8)
+
+walkSlider.MouseButton1Click:Connect(function()
+    walkSpeed = walkSpeed + 10
+    if walkSpeed > 100 then
+        walkSpeed = 16
+    end
+    walkSlider.Text = "Velocidade de Andar: " .. walkSpeed
+    humanoid.WalkSpeed = walkSpeed
+end)
+
+-- Fly Speed Slider
+local flySlider = Instance.new("TextButton", mainFrame)
+flySlider.Position = UDim2.new(0, 10, 0, 110)
+flySlider.Size = UDim2.new(0, 240, 0, 40)
+flySlider.Text = "Velocidade de Voo: 100"
+flySlider.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+flySlider.TextColor3 = Color3.new(1, 1, 1)
+Instance.new("UICorner", flySlider).CornerRadius = UDim.new(0, 8)
+
+flySlider.MouseButton1Click:Connect(function()
+    flySpeed = flySpeed + 50
+    if flySpeed > 300 then
+        flySpeed = 100
+    end
+    flySlider.Text = "Velocidade de Voo: " .. flySpeed
+end)
+
+-- Fly toggle
+local flyButton = Instance.new("TextButton", mainFrame)
+flyButton.Position = UDim2.new(0, 10, 0, 160)
+flyButton.Size = UDim2.new(0, 240, 0, 40)
+flyButton.Text = "Ativar Voo"
+flyButton.BackgroundColor3 = Color3.fromRGB(100, 100, 200)
+flyButton.TextColor3 = Color3.new(1, 1, 1)
+Instance.new("UICorner", flyButton).CornerRadius = UDim.new(0, 8)
+
+flyButton.MouseButton1Click:Connect(function()
+    flying = not flying
+    flyButton.Text = flying and "Desativar Voo" or "Ativar Voo"
+    if flying then
+        local bodyVelocity = Instance.new("BodyVelocity")
+        bodyVelocity.Velocity = Vector3.new(0, 0, 0)
+        bodyVelocity.MaxForce = Vector3.new(1e5, 1e5, 1e5)
+        bodyVelocity.Name = "FlyForce"
+        bodyVelocity.Parent = character:WaitForChild("HumanoidRootPart")
+
+        game:GetService("RunService").Heartbeat:Connect(function()
+            if flying and bodyVelocity and character and character:FindFirstChild("HumanoidRootPart") then
+                local camCF = workspace.CurrentCamera.CFrame
+                local direction = Vector3.new()
+                if UserInputService:IsKeyDown(Enum.KeyCode.W) then direction = direction + camCF.LookVector end
+                if UserInputService:IsKeyDown(Enum.KeyCode.S) then direction = direction - camCF.LookVector end
+                if UserInputService:IsKeyDown(Enum.KeyCode.A) then direction = direction - camCF.RightVector end
+                if UserInputService:IsKeyDown(Enum.KeyCode.D) then direction = direction + camCF.RightVector end
+                bodyVelocity.Velocity = direction.Unit * flySpeed
+            elseif bodyVelocity then
+                bodyVelocity.Velocity = Vector3.zero
+            end
+        end)
+    else
+        local bv = character:FindFirstChild("HumanoidRootPart"):FindFirstChild("FlyForce")
+        if bv then bv:Destroy() end
+    end
+end)
+
+-- Noclip button
+local noclipButton = Instance.new("TextButton", mainFrame)
+noclipButton.Position = UDim2.new(0, 10, 0, 210)
+noclipButton.Size = UDim2.new(0, 240, 0, 40)
+noclipButton.Text = "Ativar Noclip"
+noclipButton.BackgroundColor3 = Color3.fromRGB(200, 100, 100)
+noclipButton.TextColor3 = Color3.new(1,1,1)
+Instance.new("UICorner", noclipButton).CornerRadius = UDim.new(0, 8)
+
+local noclip = false
+local originalCollisions = {}
+
+local function setNoclip(value)
+    noclip = value
+    noclipButton.Text = value and "Desativar Noclip" or "Ativar Noclip"
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        for _, part in ipairs(character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                if value then
+                    originalCollisions[part] = part.CanCollide
+                    part.CanCollide = false
+                else
+                    if originalCollisions[part] ~= nil then
+                        part.CanCollide = originalCollisions[part]
+                    end
+                end
+            end
+        end
+    end
+end
+
+noclipButton.MouseButton1Click:Connect(function()
+    setNoclip(not noclip)
+end)
+
+character.AncestryChanged:Connect(function(_, parent)
+    if not parent and noclip then
+        setNoclip(false)
+    end
+end)
